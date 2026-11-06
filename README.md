@@ -20,6 +20,92 @@ scaffold files and report findings. You run them, you read the output, you decid
 | `/mna-valuation` | Reconcile stock valuation against the ledger and explain an untraceable COGS figure |
 | `/mna-handover` | Write the handover document for the next consultant, not for the filing cabinet |
 
+## What it looks like
+
+You do not need to remember the skill names. The descriptions carry trigger phrases, so describing
+the problem is enough.
+
+> **You:** the inventory valuation on this client's 18.0 database is off by about 4,000 and I cannot
+> find where
+>
+> **Claude:** reads your context file for the version, runs `dx.py stock-valuation`, and comes back
+> with four queries and what each one's output will tell you. It does not propose a fix.
+>
+> **You:** paste the psql output
+>
+> **Claude:** reads the rows, says 11 layers have negative `remaining_qty` on three products,
+> explains that this is backdating rather than an accounting error, and only then writes the minimum
+> change, if code is even the answer.
+
+That last part is the point. The skill will not write a fix before the output of a diagnostic is in
+hand, even when the cause looks obvious, because an obvious cause that turns out to be wrong costs
+more than one round trip of commands.
+
+### Picking a symptom
+
+```
+$ python3 dx.py --list
+access-rights      3 queries
+attachment-bloat   3 queries
+cron               2 queries
+currency           3 queries
+duplicate          2 queries
+invoice-mismatch   4 queries
+module-state       4 queries
+slow               4 queries
+stock-quant        3 queries
+stock-valuation    4 queries
+```
+
+Each query arrives with what its output means and what a healthy result looks like, so an empty
+result is a finding rather than a dead end:
+
+```
+$ python3 dx.py stock-quant
+-- stock-quant: 3 queries, all read only
+-- placeholders in CAPITALS must be filled in before running
+
+-- [1/3] Quants in internal locations with a negative quantity
+--   Should be empty. Negative on-hand in an internal location means a move
+--   went out without stock to cover it.
+SELECT sq.id, pt.name->>'en_US' AS product, sl.complete_name AS location,
+       sq.quantity, sq.reserved_quantity
+FROM   stock_quant sq
+...
+```
+
+### Scanning before an upgrade
+
+```
+$ python3 check_compat.py ./my_module --target 18.0
+scanned ./my_module against Odoo 18.0
+8 confirmed, 2 to verify
+
+== CONFIRMED ==
+
+tree-tag  (2 hits, removed in 18.0)
+  the tree tag became list in 18.0.
+    my_module/views/thing_views.xml:4  <tree>
+    my_module/views/thing_views.xml:6  </tree>
+
+attrs  (1 hit, removed in 17.0)
+  attrs was removed in 17.0. Use invisible, readonly or required with a plain python expression.
+    my_module/views/thing_views.xml:5  <field name="x" attrs="{'invisible': [('y','=',False)]}"/>
+
+== VERIFY ==
+
+oe-chatter  (1 hit, removed in 18.0)
+  the chatter markup changed around 18.0 in favour of a chatter tag. Confirm against the target
+  version before editing.
+    my_module/views/thing_views.xml:9  <div class="oe_chatter"/>
+
+next: fix confirmed, verify the rest against the target version,
+then install on a restored copy of the real database and read the log.
+```
+
+The two tiers are the useful part. A scanner that reports everything with equal confidence trains
+you to ignore it.
+
 ## Tools
 
 Plain Python 3. No dependencies, no network calls, no database connections.
