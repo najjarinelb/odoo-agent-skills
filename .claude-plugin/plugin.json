@@ -1,0 +1,10 @@
+{
+  "name": "odoo-agent",
+  "description": "Six Claude skills for Odoo implementation work, built around diagnosing before coding: a psql and shell diagnostic generator that refuses to guess at data, a version correct module scaffolder for 16 through 19, a deprecation scanner for upgrades, a QWeb report linter, a stock valuation and COGS reconciliation query library, and a client handover document writer.",
+  "version": "0.1.0",
+  "author": { "name": "Mohammad Najjarine" },
+  "homepage": "https://github.com/najjarinelb/odoo-agent-skills",
+  "repository": "https://github.com/najjarinelb/odoo-agent-skills",
+  "license": "MIT",
+  "keywords": ["odoo", "erp", "psql", "postgresql", "qweb", "upgrade", "migration", "accounting", "inventory"]
+}

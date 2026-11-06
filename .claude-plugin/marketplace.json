@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "odoo-agent-skills",
+  "description": "The Odoo consultant skill pack for Claude",
+  "owner": { "name": "Mohammad Najjarine" },
+  "plugins": [
+    {
+      "name": "odoo-agent",
+      "description": "Six Claude skills for Odoo work: a diagnostic generator that verifies before coding, a version correct module scaffolder, a deprecation scanner, a QWeb linter, a valuation query library and a handover writer.",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/najjarinelb/odoo-agent-skills"
+    }
+  ]
+}

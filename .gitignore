@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.DS_Store
+context.md
+!templates/context.md
+*.local.*
+.env
