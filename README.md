@@ -99,8 +99,18 @@ Stated plainly, because a tool that overstates itself is worse than no tool.
   at it.
 - **`dx.py` queries assume Odoo 16 or later**, where translated fields are `jsonb`. On 15 and
   earlier, replace `name->>'en_US'` with `name`. Most also assume `company_id = 1`; change it.
-- **No query here has been run against every Odoo version.** Read a query before you run it. That is
-  the habit the whole pack is arguing for, and it applies to the pack itself.
+- **The SQL has not been executed against a live database.** It was written from schema knowledge,
+  not verified by running it. Read a query before you run it, and run it on a copy first. That is the
+  habit the whole pack is arguing for, and it applies to the pack itself.
+- **One known uncertainty, named rather than hidden.** `queries/01_gl_vs_layers.sql` reads
+  `product_category.property_stock_valuation_account_id` as an ordinary column. Company-dependent
+  `property_` fields are not stored that way: historically they live in `ir_property`, and in newer
+  versions they moved to a company-keyed jsonb column. So that query may error, or worse return
+  nothing and look like a clean reconciliation. Confirm the storage on your version before trusting
+  its output. A pull request fixing it is the most useful contribution this repo could receive.
+- **`01_gl_vs_layers.sql` filters on `create_date`, not the accounting date.** On a backdated entry
+  those differ, so an "as of" figure from it is not the accounting position. This is a known
+  simplification, not an oversight.
 
 ## The gate
 
